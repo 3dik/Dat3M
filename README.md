@@ -3,14 +3,22 @@
 Fork
 ====
 
-This is a fork of the original Dat3M.
+This is a fork of the original Dat3M. This fork is only about Dartagnan. That's
+why Porthos might be broken.
 
 * [Fork Repository URL](https://github.com/3dik/Dat3M) (current branch: eddev)
 * [Original Repository URL](https://github.com/hernanponcedeleon/Dat3M)
 
 Changes:
 
+* Command line options ```encstat``` and ```timestat``` can be used to print
+  statistics. They can be formatted by the script ```measures/fmt.py```. Just
+  pipe the program's output into that script.
 * New litmus test: C/mutual/Dekker.litmus
+
+Also:
+
+* The Python scripts require Python3 (works with 3.8)
 
 The rest of this README equals to that of the original Dat3M.
 

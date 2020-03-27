@@ -27,6 +27,9 @@ public class Settings {
 
     private boolean draw = false;
     private ImmutableSet<String> relations = ImmutableSet.of();
+
+    private boolean showEncStat = false;
+    private boolean showTimeStat = false;
     
     private Map<Integer, Boolean> flags = new HashMap<Integer, Boolean>(){{
             put(FLAG_FORCE_PRECISE_EDGES_IN_GRAPHS, true);
@@ -63,6 +66,22 @@ public class Settings {
     public Settings(Mode mode, Alias alias, int bound, boolean witness, boolean draw, String... relations){
         this(mode, alias, bound, draw, Arrays.asList(relations));
         this.witness = witness;
+    }
+
+    public void setShowEncStat(boolean value){
+        showEncStat = value;
+    }
+
+    public boolean getShowEncStat() {
+        return showEncStat;
+    }
+
+    public void setShowTimeStat(boolean value){
+        showTimeStat = value;
+    }
+
+    public boolean getShowTimeStat() {
+        return showTimeStat;
     }
 
     public Mode getMode(){

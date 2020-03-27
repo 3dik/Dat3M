@@ -41,3 +41,8 @@ svcomp/target/
 # Boogie #
 ##########
 output/
+
+##########
+# Python #
+##########
+__pycache__
