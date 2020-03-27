@@ -1,5 +1,18 @@
 # Dat3M: Memory Model Aware Verification
 
+Fork
+====
+
+This is a fork of the original Dat3M.
+
+* [Fork Repository URL](https://github.com/3dik/Dat3M) (current branch: eddev)
+* [Original Repository URL](https://github.com/hernanponcedeleon/Dat3M)
+
+The rest of this README equals to that of the original Dat3M.
+
+Introduction
+============
+
 <p align="center"> 
 <img src="ui/src/main/resources/dat3m.png">
 </p>
