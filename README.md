@@ -8,6 +8,10 @@ This is a fork of the original Dat3M.
 * [Fork Repository URL](https://github.com/3dik/Dat3M) (current branch: eddev)
 * [Original Repository URL](https://github.com/hernanponcedeleon/Dat3M)
 
+Changes:
+
+* New litmus test: C/mutual/Dekker.litmus
+
 The rest of this README equals to that of the original Dat3M.
 
 Introduction

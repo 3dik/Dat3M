@@ -1,0 +1,64 @@
+C Own_Dekker
+{
+want0 = 0;
+want1 = 0;
+turn = 0;
+}
+
+P0(int *want0, int *want1, int *turn) {
+    while(1) {
+        WRITE_ONCE(*want0, 1);
+
+        w1 = READ_ONCE(*want1);
+        while(w1 == 1) {
+
+            t = READ_ONCE(*turn);
+            if (t != 0) {
+                WRITE_ONCE(*want0, 0);
+                while (t != 0) {
+                    t = READ_ONCE(*turn);
+                }
+                WRITE_ONCE(*want0, 1);
+            }
+
+            w1 = READ_ONCE(*want1);
+        }
+
+        // critical section start
+        //
+        // critical section end??? here?
+
+        WRITE_ONCE(*turn, 1);
+        WRITE_ONCE(*want0, 0);
+    }
+}
+
+P1(int *want0, int *want1, int *turn) {
+    while(1) {
+        WRITE_ONCE(*want1, 1);
+
+        w0 = READ_ONCE(*want0);
+        while(w0 == 1) {
+
+            t = READ_ONCE(*turn);
+            if (t != 1) {
+                WRITE_ONCE(*want1, 0);
+                while (t != 1) {
+                    t = READ_ONCE(*turn);
+                }
+                WRITE_ONCE(*want1, 1);
+            }
+
+            w0 = READ_ONCE(*want0);
+        }
+
+        // critical section start
+        //
+        // critical section end??? here?
+
+        WRITE_ONCE(*turn, 0);
+        WRITE_ONCE(*want1, 0);
+    }
+}
+
+exists turn=10
