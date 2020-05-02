@@ -12,9 +12,10 @@ import com.microsoft.z3.Status;
 public enum Result {
 	PASS, FAIL, UNKNOWN, BPASS, BFAIL;
 
-	public static Result getResult(Solver s, Program p, Context ctx) {
+	public static Result interpretCheckResult(Status checkResult,
+            Solver s, Program p, Context ctx) {
 		Result res;
-		if(s.check() == Status.SATISFIABLE) {
+		if(checkResult == Status.SATISFIABLE) {
 			s.add(p.encodeNoBoundEventExec(ctx));
 			res = s.check() == Status.SATISFIABLE ? FAIL : BFAIL;	
 		} else {

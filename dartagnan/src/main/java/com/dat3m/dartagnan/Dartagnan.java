@@ -1,7 +1,7 @@
 package com.dat3m.dartagnan;
 
 import static com.dat3m.dartagnan.utils.Result.FAIL;
-import static com.dat3m.dartagnan.utils.Result.getResult;
+import static com.dat3m.dartagnan.utils.Result.interpretCheckResult;
 import static com.dat3m.dartagnan.utils.Smt.exprLen;
 
 import java.io.File;
@@ -26,6 +26,7 @@ import com.microsoft.z3.Context;
 import com.microsoft.z3.Solver;
 import com.microsoft.z3.enumerations.Z3_ast_print_mode;
 import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Status;
 
 public class Dartagnan {
 
@@ -92,78 +93,22 @@ public class Dartagnan {
     }
 
     public static Result testProgram(Solver solver, Context ctx, Program program, Wmm wmm, Arch target, Settings settings){
-        boolean showEnc = settings.getShowEncStat();
-
-    	program.unroll(settings.getBound(), 0);
-        program.compile(target, 0);
-        // AssertionInline depends on compiled events (copies)
-        // Thus we need to set the assertion after compilation
-        if(program.getAss() == null){
-        	program.setAss(program.createAssertion());
-        }
-
-        CheckClock.push("encoding");
-
-        BoolExpr encNDet = program.encodeUINonDet(ctx);
-        solver.add(encNDet);
-        BoolExpr encCF = program.encodeCF(ctx);
-        solver.add(encCF);
-        BoolExpr encRegs = program.encodeFinalRegisterValues(ctx);
-        solver.add(encRegs);
-        // wmm.encode would print the encoding size of each relation
-        if (showEnc) {
+        if (settings.getShowEncStat()){
             System.out.println("start list enc");
         }
-        BoolExpr encRels = wmm.encode(program, ctx, settings);
-        solver.add(encRels);
-        BoolExpr encAxioms = wmm.consistent(program, ctx);
-        solver.add(encAxioms);
-
-        if (showEnc) {
-            Stack<String> backup = CheckClock.popAll();
-            CheckClock.push("exprLen");
-            System.out.println("list delimeter");
-            System.out.println("ndet: " + exprLen(encNDet));
-            System.out.println("cf: " + exprLen(encCF));
-            System.out.println("regs: " + exprLen(encRegs));
-            System.out.println("rels: " + exprLen(encRels));
-            System.out.println("axis: " + exprLen(encAxioms));
-            CheckClock.pop();
-            CheckClock.pushAll(backup);
-        }
-
-        CheckClock.pop();
-        CheckClock.push("solve");
-        // Used for getting the UNKNOWN
-        // pop() is inside getResult
-        solver.push();
-        CheckClock.pop();
         CheckClock.push("encoding");
-        BoolExpr encAss = program.getAss().encode(ctx);
-        solver.add(encAss);
-        if (showEnc) {
-            System.out.println("ass: " + exprLen(encAss));
-        }
-        if(program.getAssFilter() != null){
-            BoolExpr encAssF = program.getAssFilter().encode(ctx);
-            solver.add(encAssF);
-            if (showEnc) {
-                Stack<String> backup = CheckClock.popAll();
-                CheckClock.push("exprLen");
-                System.out.println("assf: " + exprLen(encAssF));
-                CheckClock.pop();
-                CheckClock.pushAll(backup);
-            }
-        }
-        if (showEnc) {
+        prepare(solver, ctx, program, wmm, target, settings);
+        encodeStep(solver, ctx, program, wmm, settings);
+        CheckClock.pop();
+        if (settings.getShowEncStat()){
             System.out.println("end list enc");
         }
-        CheckClock.pop();
 
         CheckClock.push("solve");
-        Result result = getResult(solver, program, ctx);
+        Status status = solver.check();
+        Result res = interpretCheckResult(status, solver, program, ctx);
         CheckClock.pop();
-        return result;
+        return res;
     }
 
     public static boolean canDrawGraph(AbstractAssert ass, boolean result){
@@ -183,5 +128,84 @@ public class Dartagnan {
         FileWriter fw = new FileWriter(newTextFile);
         fw.write(graph.toString());
         fw.close();
+    }
+
+    private static void prepare(Solver solver, Context ctx, Program program,
+            Wmm wmm, Arch target, Settings settings){
+    	program.unroll(settings.getBound(), 0);
+        program.compile(target, 0);
+        // AssertionInline depends on compiled events (copies)
+        // Thus we need to set the assertion after compilation
+        if(program.getAss() == null){
+        	program.setAss(program.createAssertion());
+        }
+
+        BoolExpr encNDet = program.encodeUINonDet(ctx);
+        solver.add(encNDet);
+        BoolExpr encCF = program.encodeCF(ctx);
+        solver.add(encCF);
+        BoolExpr encRegs = program.encodeFinalRegisterValues(ctx);
+        solver.add(encRegs);
+        if (settings.getShowEncStat()){
+            Stack<String> backup = CheckClock.popAll();
+            CheckClock.push("exprLen");
+            System.out.println("ndet: " + exprLen(encNDet));
+            System.out.println("cf: " + exprLen(encCF));
+            System.out.println("regs: " + exprLen(encRegs));
+            CheckClock.pop();
+            CheckClock.pushAll(backup);
+        }
+
+        wmm.prepare(program, settings);
+    }
+
+    private static void encodeStep(Solver solver, Context ctx,
+            Program program, Wmm wmm, Settings settings){
+        // wmm.encode would print the encoding size of each relation
+        if (settings.getShowEncStat()){
+            System.out.println("list delimeter");
+        }
+        BoolExpr encRels = wmm.encode(ctx, settings);
+        solver.add(encRels);
+        BoolExpr encAxioms = wmm.consistent(program, ctx);
+        solver.add(encAxioms);
+
+        if (settings.getShowEncStat()){
+            Stack<String> backup = CheckClock.popAll();
+            CheckClock.push("exprLen");
+            System.out.println("list delimeter");
+            System.out.println("rels: " + exprLen(encRels));
+            System.out.println("axis: " + exprLen(encAxioms));
+            CheckClock.pop();
+            CheckClock.pushAll(backup);
+        }
+
+        // Used for getting the UNKNOWN
+        // pop() is inside interpretCheckResult
+        push(solver);
+        BoolExpr encAss = program.getAss().encode(ctx);
+        solver.add(encAss);
+        if (settings.getShowEncStat()){
+            System.out.println("ass: " + exprLen(encAss));
+        }
+        if(program.getAssFilter() != null){
+            BoolExpr encAssF = program.getAssFilter().encode(ctx);
+            solver.add(encAssF);
+            if (settings.getShowEncStat()){
+                Stack<String> backup = CheckClock.popAll();
+                CheckClock.push("exprLen");
+                System.out.println("assf: " + exprLen(encAssF));
+                CheckClock.pop();
+                CheckClock.pushAll(backup);
+            }
+        }
+    }
+
+    private static void push(Solver solver){
+        Stack<String> backup = CheckClock.popAll();
+        CheckClock.push("solve");
+        solver.push();
+        CheckClock.pop();
+        CheckClock.pushAll(backup);
     }
 }

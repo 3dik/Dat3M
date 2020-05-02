@@ -11,7 +11,7 @@ public class RecursiveGroup {
 
     private final int id;
     private List<RecursiveRelation> relations;
-    private int encodeIterations = 0;
+    private int encodeIterations;
 
     public RecursiveGroup(int id, Collection<RecursiveRelation> relations){
         for(RecursiveRelation relation : relations){
@@ -20,6 +20,7 @@ public class RecursiveGroup {
         }
         this.relations = new ArrayList<>(relations);
         this.id = id;
+        reset();
     }
 
     public int getId(){
@@ -30,6 +31,10 @@ public class RecursiveGroup {
         for(RecursiveRelation relation : relations){
             relation.setDoRecurse();
         }
+    }
+
+    public void reset(){
+        encodeIterations = 0;
     }
 
     public BoolExpr encode(Context ctx){

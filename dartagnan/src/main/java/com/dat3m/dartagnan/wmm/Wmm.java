@@ -62,7 +62,7 @@ public class Wmm {
         recursiveGroups.add(new RecursiveGroup(id, recursiveGroup));
     }
 
-    public BoolExpr encode(Program program, Context ctx, Settings settings) {
+    public void prepare(Program program, Settings settings){
         this.program = program;
         new AliasAnalysis().calculateLocationSets(this.program, settings.getAlias());
 
@@ -73,8 +73,11 @@ public class Wmm {
         for (Axiom ax : axioms) {
             ax.getRel().updateRecursiveGroupId(ax.getRel().getRecursiveGroupId());
         }
+    }
 
+    public BoolExpr encode(Context ctx, Settings settings) {
         for(RecursiveGroup recursiveGroup : recursiveGroups){
+            recursiveGroup.reset();
             recursiveGroup.setDoRecurse();
         }
 
@@ -127,6 +130,7 @@ public class Wmm {
             }
         }
 
+        Collections.reverse(recursiveGroups);
         return enc;
     }
 
