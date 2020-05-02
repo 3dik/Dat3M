@@ -147,13 +147,9 @@ public class Dartagnan {
         BoolExpr encRegs = program.encodeFinalRegisterValues(ctx);
         solver.add(encRegs);
         if (settings.getShowEncStat()){
-            Stack<String> backup = CheckClock.popAll();
-            CheckClock.push("exprLen");
             System.out.println("ndet: " + exprLen(encNDet));
             System.out.println("cf: " + exprLen(encCF));
             System.out.println("regs: " + exprLen(encRegs));
-            CheckClock.pop();
-            CheckClock.pushAll(backup);
         }
 
         wmm.prepare(program, settings);
@@ -171,13 +167,9 @@ public class Dartagnan {
         solver.add(encAxioms);
 
         if (settings.getShowEncStat()){
-            Stack<String> backup = CheckClock.popAll();
-            CheckClock.push("exprLen");
             System.out.println("list delimeter");
             System.out.println("rels: " + exprLen(encRels));
             System.out.println("axis: " + exprLen(encAxioms));
-            CheckClock.pop();
-            CheckClock.pushAll(backup);
         }
 
         // Used for getting the UNKNOWN
@@ -192,11 +184,7 @@ public class Dartagnan {
             BoolExpr encAssF = program.getAssFilter().encode(ctx);
             solver.add(encAssF);
             if (settings.getShowEncStat()){
-                Stack<String> backup = CheckClock.popAll();
-                CheckClock.push("exprLen");
                 System.out.println("assf: " + exprLen(encAssF));
-                CheckClock.pop();
-                CheckClock.pushAll(backup);
             }
         }
     }

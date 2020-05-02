@@ -2,7 +2,6 @@ package com.dat3m.dartagnan.wmm.relation;
 
 import static com.dat3m.dartagnan.utils.Smt.exprLen;
 
-import com.dat3m.dartagnan.utils.CheckClock;
 import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.utils.Mode;
 import com.microsoft.z3.BoolExpr;
@@ -13,7 +12,6 @@ import com.dat3m.dartagnan.wmm.utils.TupleSet;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Stack;
 
 import static com.dat3m.dartagnan.wmm.utils.Utils.edge;
 
@@ -153,11 +151,7 @@ public abstract class Relation {
     protected BoolExpr doEncode(){
         BoolExpr enc = doEncodeUnwrapped();
         if (settings.getShowEncStat()) {
-            Stack<String> backup = CheckClock.popAll();
-            CheckClock.push("exprLen");
             System.out.println(getName() + ": " + exprLen(enc));
-            CheckClock.pop();
-            CheckClock.pushAll(backup);
         }
         return enc;
     }
