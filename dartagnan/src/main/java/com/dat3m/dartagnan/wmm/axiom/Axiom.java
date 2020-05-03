@@ -1,7 +1,10 @@
 package com.dat3m.dartagnan.wmm.axiom;
 
+import static com.dat3m.dartagnan.utils.Smt.exprLen;
+
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
 
@@ -28,18 +31,26 @@ public abstract class Axiom {
         return rel;
     }
 
-    public BoolExpr consistent(Context ctx) {
+    public BoolExpr consistent(Context ctx, Settings settings) {
+        BoolExpr enc;
         if(negate){
-            return _inconsistent(ctx);
+            enc = _inconsistent(ctx);
+        } else{
+            enc = _consistent(ctx);
         }
-        return _consistent(ctx);
+        logEnc(enc, settings);
+        return enc;
     }
 
-    public BoolExpr inconsistent(Context ctx) {
+    public BoolExpr inconsistent(Context ctx, Settings settings) {
+        BoolExpr enc;
         if(negate){
-            return _consistent(ctx);
+            enc = _consistent(ctx);
+        } else{
+            enc = _inconsistent(ctx);
         }
-        return _inconsistent(ctx);
+        logEnc(enc, settings);
+        return enc;
     }
 
     @Override
@@ -57,4 +68,10 @@ public abstract class Axiom {
     protected abstract BoolExpr _inconsistent(Context ctx);
 
     protected abstract String _toString();
+
+    private void logEnc(BoolExpr enc, Settings settings){
+        if (settings.getShowEncStat()){
+            System.out.println(this + ": " + exprLen(enc));
+        }
+    }
 }

@@ -157,13 +157,16 @@ public class Dartagnan {
 
     private static void encodeStep(Solver solver, Context ctx,
             Program program, Wmm wmm, Settings settings){
-        // wmm.encode would print the encoding size of each relation
+        // these encoding functions can print the size of each encoding part
         if (settings.getShowEncStat()){
             System.out.println("list delimeter");
         }
         BoolExpr encRels = wmm.encode(ctx, settings);
         solver.add(encRels);
-        BoolExpr encAxioms = wmm.consistent(program, ctx);
+        if (settings.getShowEncStat()){
+            System.out.println("list delimeter");
+        }
+        BoolExpr encAxioms = wmm.consistent(program, ctx, settings);
         solver.add(encAxioms);
 
         if (settings.getShowEncStat()){

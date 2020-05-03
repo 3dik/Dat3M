@@ -10,14 +10,17 @@ import runtime
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--enclimit', type=int, default=5)
+    parser.add_argument('--rlimit', type=int, default=5,
+            help='maximal number of listed relations')
+    parser.add_argument('--alimit', type=int, default=5,
+            help='maximal number of listed axioms')
     parser.add_argument('--noout', action='store_true')
     return parser.parse_args()
 
 def show_data(text, args):
     for name, data in reader.get_lists(text).items():
         if 'enc' == name:
-            bigrels.do(data, args.enclimit)
+            bigrels.do(data, args.rlimit, args.alimit)
         elif 'time' == name:
             runtime.do(data)
 

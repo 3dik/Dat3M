@@ -134,24 +134,26 @@ public class Wmm {
         return enc;
     }
 
-    public BoolExpr consistent(Program program, Context ctx) {
+    public BoolExpr consistent(Program program, Context ctx,
+            Settings settings) {
         if(this.program != program){
             throw new RuntimeException("Wmm relations must be encoded before consistency predicate");
         }
         BoolExpr expr = ctx.mkTrue();
         for (Axiom ax : axioms) {
-            expr = ctx.mkAnd(expr, ax.consistent(ctx));
+            expr = ctx.mkAnd(expr, ax.consistent(ctx, settings));
         }
         return expr;
     }
 
-    public BoolExpr inconsistent(Program program, Context ctx) {
+    public BoolExpr inconsistent(Program program, Context ctx,
+            Settings settings) {
         if(this.program != program){
             throw new RuntimeException("Wmm relations must be encoded before inconsistency predicate");
         }
         BoolExpr expr = ctx.mkFalse();
         for (Axiom ax : axioms) {
-            expr = ctx.mkOr(expr, ax.inconsistent(ctx));
+            expr = ctx.mkOr(expr, ax.inconsistent(ctx, settings));
         }
         return expr;
     }
