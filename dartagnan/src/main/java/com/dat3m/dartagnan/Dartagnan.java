@@ -12,6 +12,7 @@ import java.util.Stack;
 import org.apache.commons.cli.HelpFormatter;
 
 import com.dat3m.dartagnan.asserts.AbstractAssert;
+import com.dat3m.dartagnan.cegar.ApproxAll;
 import com.dat3m.dartagnan.parsers.cat.ParserCat;
 import com.dat3m.dartagnan.parsers.program.ProgramParser;
 import com.dat3m.dartagnan.program.Program;
@@ -98,14 +99,37 @@ public class Dartagnan {
         }
         CheckClock.push("encoding");
         prepare(solver, ctx, program, wmm, target, settings);
-        encodeStep(solver, ctx, program, wmm, settings);
+        ApproxAll approx = new ApproxAll();
+        approx.initialApprox();
+
+        Status status = null;
+        while (true){
+            push(solver); // the step encoding and the assertion come next
+
+            encodeStep(solver, ctx, program, wmm, settings);
+
+            Stack<String> backup = CheckClock.popAll();
+            CheckClock.push("solve");
+            status = solver.check();
+            CheckClock.pop();
+            CheckClock.pushAll(backup);
+
+            if (Status.SATISFIABLE == status){
+                if (approx.trueModel(solver.getModel())){
+                    break;
+                }
+            } else if (approx.trueCore(solver.getUnsatCore())){
+                break;
+            }
+            solver.pop(); // assertion
+            solver.pop(); // step encoding
+        }
         CheckClock.pop();
         if (settings.getShowEncStat()){
             System.out.println("end list enc");
         }
 
         CheckClock.push("solve");
-        Status status = solver.check();
         Result res = interpretCheckResult(status, solver, program, ctx);
         CheckClock.pop();
         return res;
