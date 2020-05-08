@@ -27,6 +27,15 @@ public class RelRangeIdentity extends UnaryRelation {
     }
 
     @Override
+    protected TupleSet __fillEnabledTuples(TupleSet s1){
+        TupleSet result = new TupleSet();
+        for (Tuple t : s1){
+            result.add(new Tuple(t.getSecond(), t.getSecond()));
+        }
+        return result;
+    }
+
+    @Override
     public TupleSet getMaxTupleSet(){
         if(maxTupleSet == null){
             maxTupleSet = new TupleSet();

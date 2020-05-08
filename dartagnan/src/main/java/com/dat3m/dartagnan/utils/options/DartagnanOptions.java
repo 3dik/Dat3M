@@ -13,6 +13,8 @@ public class DartagnanOptions extends BaseOptions {
 
         addOption(new Option("encstat", "print encodings sizes"));
         addOption(new Option("timestat", "print runtimes"));
+
+        addOption(new Option("appaxioms", "approximate axioms"));
     }
 
     @Override
@@ -21,5 +23,7 @@ public class DartagnanOptions extends BaseOptions {
 
         settings.setShowEncStat(cmd.hasOption("encstat"));
         settings.setShowTimeStat(cmd.hasOption("timestat"));
+
+        settings.setApproxAxioms(cmd.hasOption("appaxioms"));
     }
 }

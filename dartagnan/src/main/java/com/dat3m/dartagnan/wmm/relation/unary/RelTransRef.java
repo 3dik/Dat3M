@@ -42,6 +42,15 @@ public class RelTransRef extends RelTrans {
     }
 
     @Override
+    protected TupleSet __fillEnabledTuples(TupleSet s1){
+        TupleSet result = super.__fillEnabledTuples(s1);
+        for(Event e : program.getCache().getEvents(FilterBasic.get(EType.ANY))){
+            result.add(new Tuple(e, e));
+        }
+        return result;
+    }
+
+    @Override
     public void initialise(Program program, Context ctx, Settings settings){
         super.initialise(program, ctx, settings);
         identityEncodeTupleSet = new TupleSet();

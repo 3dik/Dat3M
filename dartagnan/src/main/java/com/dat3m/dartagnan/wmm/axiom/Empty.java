@@ -18,7 +18,7 @@ public class Empty extends Axiom {
     }
 
     @Override
-    public TupleSet getEncodeTupleSet(){
+    protected TupleSet _getEncodeTupleSet(){
         return rel.getMaxTupleSet();
     }
 

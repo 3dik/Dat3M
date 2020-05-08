@@ -3,9 +3,12 @@ package com.dat3m.dartagnan.wmm.relation.binary;
 import com.dat3m.dartagnan.utils.Settings;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
+
+import java.util.Map;
 
 /**
  *
@@ -28,6 +31,16 @@ public abstract class BinaryRelation extends Relation {
         this.r1 = r1;
         this.r2 = r2;
     }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        r1.fillEnabledTuples(map, model, groupId);
+        r2.fillEnabledTuples(map, model, groupId);
+        map.get(this).addAll(__fillEnabledTuples(map.get(r1), map.get(r2)));
+    }
+
+    abstract protected TupleSet __fillEnabledTuples(TupleSet s1, TupleSet s2);
 
     @Override
     public int updateRecursiveGroupId(int parentId){

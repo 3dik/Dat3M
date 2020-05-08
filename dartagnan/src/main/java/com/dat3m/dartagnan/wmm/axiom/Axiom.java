@@ -17,6 +17,7 @@ public abstract class Axiom {
     protected Relation rel;
 
     private boolean negate = false;
+    private TupleSet approxWhitelist;
 
     Axiom(Relation rel) {
         this.rel = rel;
@@ -29,6 +30,10 @@ public abstract class Axiom {
 
     public Relation getRel() {
         return rel;
+    }
+
+    public boolean isNegated(){
+        return negate;
     }
 
     public BoolExpr consistent(Context ctx, Settings settings) {
@@ -61,7 +66,25 @@ public abstract class Axiom {
         return _toString();
     }
 
-    public abstract TupleSet getEncodeTupleSet();
+    public TupleSet getEncodeTupleSet(){
+        if (null == approxWhitelist){
+            return _getEncodeTupleSet();
+        }
+        TupleSet result = new TupleSet();
+        result.addAll(_getEncodeTupleSet());
+        result.retainAll(approxWhitelist);
+        return result;
+    }
+
+    public void setApproxWhitelist(TupleSet whitelist){
+        approxWhitelist = whitelist;
+    }
+
+    public void addToApproxWhitelist(TupleSet tuples){
+        assert approxWhitelist.addAll(tuples);
+    }
+
+    protected abstract TupleSet _getEncodeTupleSet();
 
     protected abstract BoolExpr _consistent(Context ctx);
 

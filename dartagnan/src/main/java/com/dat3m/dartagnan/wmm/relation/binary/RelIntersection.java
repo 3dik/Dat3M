@@ -28,6 +28,14 @@ public class RelIntersection extends BinaryRelation {
     }
 
     @Override
+    protected TupleSet __fillEnabledTuples(TupleSet s1, TupleSet s2) {
+        TupleSet result = new TupleSet();
+        result.addAll(s1);
+        result.retainAll(s2);
+        return result;
+    }
+
+    @Override
     public TupleSet getMaxTupleSet(){
         if(maxTupleSet == null){
             maxTupleSet = new TupleSet();

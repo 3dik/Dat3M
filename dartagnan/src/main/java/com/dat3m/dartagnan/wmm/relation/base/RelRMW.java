@@ -12,12 +12,17 @@ import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.filter.FilterAbstract;
 import com.dat3m.dartagnan.wmm.filter.FilterBasic;
 import com.dat3m.dartagnan.wmm.filter.FilterIntersection;
+import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.relation.base.stat.StaticRelation;
 import com.dat3m.dartagnan.wmm.utils.Flag;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
+import com.dat3m.dartagnan.wmm.utils.Utils;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Model;
+
+import java.util.Map;
 
 import static com.dat3m.dartagnan.wmm.utils.Utils.edge;
 
@@ -39,6 +44,22 @@ public class RelRMW extends StaticRelation {
     public RelRMW(){
         term = "rmw";
         forceDoEncode = true;
+    }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        // encodeTupleSet is not used in encodeApprox at all. baseMaxTupleSet
+        // is a subset of maxTupleSet. The tuples of the loops after the
+        // invocation of StaticRelation's encodeApprox are also part of
+        // maxTupleSet. So encodeTupleSet can only affect the set of encoded
+        // tuples in Relation's encodeNegation, which forces the boolConst
+        // values to be false, anyway.
+        //
+        // So this relation is never under-approximated and we can simply
+        // aggregate all tuples from the given model.
+        TupleSet s = Utils.enabledTuples("rmw", getMaxTupleSet(), ctx, model);
+        map.get(this).addAll(s);
     }
 
     @Override

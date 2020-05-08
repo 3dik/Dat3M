@@ -38,6 +38,14 @@ public class Wmm {
         axioms.add(ax);
     }
 
+    public List<Axiom> getAxioms(){
+        return axioms;
+    }
+
+    public List<RecursiveGroup> getRecursiveGroups(){
+        return recursiveGroups;
+    }
+
     public void addFilter(FilterAbstract filter) {
         filters.put(filter.getName(), filter);
     }

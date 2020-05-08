@@ -3,11 +3,13 @@ package com.dat3m.dartagnan.wmm.relation;
 import com.dat3m.dartagnan.utils.Settings;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.wmm.utils.Utils;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
 
+import java.util.Map;
 /**
  *
  * @author Florian Furbach
@@ -44,6 +46,21 @@ public class RecursiveRelation extends Relation {
 
     public void setDoRecurse(){
         doRecurse = true;
+    }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+    }
+
+    public boolean fillEnabledTuplesRec(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        int size = map.getOrDefault(this, new TupleSet()).size();
+        r1.fillEnabledTuples(map, model, groupId);
+
+        map.putIfAbsent(this, map.get(r1));
+
+        return size != map.get(this).size();
     }
 
     @Override

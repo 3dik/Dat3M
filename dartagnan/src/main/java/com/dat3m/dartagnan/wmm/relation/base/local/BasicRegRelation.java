@@ -1,13 +1,16 @@
 package com.dat3m.dartagnan.wmm.relation.base.local;
 
 import com.dat3m.dartagnan.expression.IConst;
+import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.relation.base.stat.StaticRelation;
 import com.dat3m.dartagnan.wmm.utils.Utils;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
+import com.dat3m.dartagnan.wmm.utils.Utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.Register;
 import com.dat3m.dartagnan.program.event.Event;
 import com.dat3m.dartagnan.program.event.utils.RegWriter;
@@ -15,6 +18,13 @@ import com.dat3m.dartagnan.program.event.utils.RegWriter;
 import java.util.*;
 
 abstract class BasicRegRelation extends StaticRelation {
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        TupleSet s = Utils.enabledTuples(getName(), maxTupleSet, ctx, model);
+        map.get(this).addAll(s);
+    }
 
     abstract Collection<Register> getRegisters(Event regReader);
 

@@ -3,9 +3,12 @@ package com.dat3m.dartagnan.wmm.relation.unary;
 import com.dat3m.dartagnan.utils.Settings;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.wmm.relation.Relation;
+import com.dat3m.dartagnan.wmm.utils.TupleSet;
 
+import java.util.Map;
 /**
  *
  * @author Florian Furbach
@@ -22,6 +25,15 @@ public abstract class UnaryRelation extends Relation {
         super(name);
         this.r1 = r1;
     }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        r1.fillEnabledTuples(map, model, groupId);
+        map.get(this).addAll(__fillEnabledTuples(map.get(r1)));
+    }
+
+    abstract protected TupleSet __fillEnabledTuples(TupleSet s1);
 
     @Override
     public int updateRecursiveGroupId(int parentId){

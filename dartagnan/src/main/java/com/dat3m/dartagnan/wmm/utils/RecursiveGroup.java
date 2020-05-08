@@ -23,6 +23,10 @@ public class RecursiveGroup {
         reset();
     }
 
+    public List<RecursiveRelation> getRelations(){
+        return relations;
+    }
+
     public int getId(){
         return id;
     }

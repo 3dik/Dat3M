@@ -99,7 +99,7 @@ public class Dartagnan {
         }
         CheckClock.push("encoding");
         prepare(solver, ctx, program, wmm, target, settings);
-        ApproxAll approx = new ApproxAll();
+        ApproxAll approx = new ApproxAll(wmm, settings);
         approx.initialApprox();
 
         Status status = null;
@@ -109,16 +109,23 @@ public class Dartagnan {
             encodeStep(solver, ctx, program, wmm, settings);
 
             Stack<String> backup = CheckClock.popAll();
+
             CheckClock.push("solve");
             status = solver.check();
             CheckClock.pop();
+
+            CheckClock.push("interpret");
+            boolean trueResult;
+            if (Status.SATISFIABLE == status){
+                trueResult = approx.trueModel(solver.getModel());
+            } else {
+                trueResult = approx.trueCore(solver.getUnsatCore());
+            }
+            CheckClock.pop();
+
             CheckClock.pushAll(backup);
 
-            if (Status.SATISFIABLE == status){
-                if (approx.trueModel(solver.getModel())){
-                    break;
-                }
-            } else if (approx.trueCore(solver.getUnsatCore())){
+            if (trueResult){
                 break;
             }
             solver.pop(); // assertion

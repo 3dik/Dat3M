@@ -22,7 +22,7 @@ public class Irreflexive extends Axiom {
     }
 
     @Override
-    public TupleSet getEncodeTupleSet(){
+    protected TupleSet _getEncodeTupleSet(){
         TupleSet set = new TupleSet();
         for(Tuple tuple : rel.getMaxTupleSet()){
             if(tuple.getFirst().getCId() == tuple.getSecond().getCId()){

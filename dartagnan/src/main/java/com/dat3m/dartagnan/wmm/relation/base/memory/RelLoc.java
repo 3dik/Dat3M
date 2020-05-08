@@ -4,12 +4,15 @@ import com.dat3m.dartagnan.program.utils.EType;
 import com.dat3m.dartagnan.wmm.filter.FilterBasic;
 import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.event.Event;
 import com.dat3m.dartagnan.program.event.MemEvent;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
+import com.dat3m.dartagnan.wmm.utils.Utils;
 
 import java.util.Collection;
+import java.util.Map;
 
 import static com.dat3m.dartagnan.wmm.utils.Utils.edge;
 
@@ -17,6 +20,21 @@ public class RelLoc extends Relation {
 
     public RelLoc(){
         term = "loc";
+    }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        TupleSet tuples = map.get(this);
+        for (Tuple t : Utils.executedTuples(model, getMaxTupleSet())){
+            MemEvent e1 = (MemEvent)t.getFirst();
+            MemEvent e2 = (MemEvent)t.getSecond();
+            int mem1 = e1.getAddress().getIntValue(e1, ctx, model);
+            int mem2 = e2.getAddress().getIntValue(e2, ctx, model);
+            if (mem1 == mem2){
+                tuples.add(t);
+            }
+        }
     }
 
     @Override

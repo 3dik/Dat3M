@@ -42,6 +42,18 @@ public class RelTrans extends UnaryRelation {
     }
 
     @Override
+    protected TupleSet __fillEnabledTuples(TupleSet s1){
+        TupleSet result = new TupleSet();
+        Map<Event, Set<Event>> trans = s1.transMap();
+        for (Event e1 : trans.keySet()){
+            for (Event e2 : trans.get(e1)){
+                result.add(new Tuple(e1, e2));
+            }
+        }
+        return result;
+    }
+
+    @Override
     public void initialise(Program program, Context ctx, Settings settings){
         super.initialise(program, ctx, settings);
         fullEncodeTupleSet = new TupleSet();

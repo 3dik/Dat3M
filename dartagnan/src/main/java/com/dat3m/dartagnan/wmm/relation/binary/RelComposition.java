@@ -33,6 +33,17 @@ public class RelComposition extends BinaryRelation {
     }
 
     @Override
+    protected TupleSet __fillEnabledTuples(TupleSet s1, TupleSet s2) {
+        TupleSet result = new TupleSet();
+        for (Tuple t1 : s1){
+            for (Tuple t2 : s2.getByFirst(t1.getSecond())){
+                result.add(new Tuple(t1.getFirst(), t2.getSecond()));
+            }
+        }
+        return result;
+    }
+
+    @Override
     public TupleSet getMaxTupleSet(){
         if(maxTupleSet == null){
             maxTupleSet = new TupleSet();

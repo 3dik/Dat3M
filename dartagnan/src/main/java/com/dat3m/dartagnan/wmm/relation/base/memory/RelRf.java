@@ -5,11 +5,13 @@ import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.filter.FilterBasic;
 import com.dat3m.dartagnan.wmm.filter.FilterMinus;
 import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.event.Event;
 import com.dat3m.dartagnan.program.event.MemEvent;
 import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
+import com.dat3m.dartagnan.wmm.utils.Utils;
 
 import java.util.*;
 
@@ -20,6 +22,13 @@ public class RelRf extends Relation {
     public RelRf(){
         term = "rf";
         forceDoEncode = true;
+    }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        TupleSet tuples = map.get(this);
+        tuples.addAll(Utils.enabledTuples("rf", getMaxTupleSet(), ctx, model));
     }
 
     @Override

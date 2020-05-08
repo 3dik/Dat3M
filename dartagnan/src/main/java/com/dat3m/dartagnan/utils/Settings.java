@@ -30,6 +30,8 @@ public class Settings {
 
     private boolean showEncStat = false;
     private boolean showTimeStat = false;
+
+    private boolean approxAxioms = false;
     
     private Map<Integer, Boolean> flags = new HashMap<Integer, Boolean>(){{
             put(FLAG_FORCE_PRECISE_EDGES_IN_GRAPHS, true);
@@ -82,6 +84,14 @@ public class Settings {
 
     public boolean getShowTimeStat() {
         return showTimeStat;
+    }
+
+    public void setApproxAxioms(boolean value){
+        approxAxioms = value;
+    }
+
+    public boolean getApproxAxioms() {
+        return approxAxioms;
     }
 
     public Mode getMode(){

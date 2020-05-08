@@ -27,6 +27,13 @@ public class RelUnion extends BinaryRelation {
         term = makeTerm(r1, r2);
     }
 
+    protected TupleSet __fillEnabledTuples(TupleSet s1, TupleSet s2) {
+        TupleSet result = new TupleSet();
+        result.addAll(s1);
+        result.addAll(s2);
+        return result;
+    }
+
     @Override
     public TupleSet getMaxTupleSet(){
         if(maxTupleSet == null){

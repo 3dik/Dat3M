@@ -29,7 +29,7 @@ public class Acyclic extends Axiom {
     }
 
     @Override
-    public TupleSet getEncodeTupleSet(){
+    protected TupleSet _getEncodeTupleSet(){
         Map<Event, Set<Event>> transMap = rel.getMaxTupleSet().transMap();
         TupleSet result = new TupleSet();
 

@@ -11,6 +11,7 @@ why Porthos might be broken.
 
 Changes:
 
+* Activate approximation of the axioms via the ```appaxioms``` CLI option.
 * Command line options ```encstat``` and ```timestat``` can be used to print
   statistics. They can be formatted by the script ```measures/fmt.py```. Just
   pipe the program's output into that script.
@@ -19,6 +20,8 @@ Changes:
 Also:
 
 * The Python scripts require Python3 (works with 3.8)
+* The relation ```crit``` is not supported in ```appaxioms``` mode.
+* In approximation mode, negated CAT axioms are not supported.
 
 The rest of this README equals to that of the original Dat3M.
 

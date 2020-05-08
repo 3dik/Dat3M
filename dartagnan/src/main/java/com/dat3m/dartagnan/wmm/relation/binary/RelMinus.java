@@ -31,6 +31,14 @@ public class RelMinus extends BinaryRelation {
     }
 
     @Override
+    protected TupleSet __fillEnabledTuples(TupleSet s1, TupleSet s2) {
+        TupleSet result = new TupleSet();
+        result.addAll(s1);
+        result.removeAll(s2);
+        return result;
+    }
+
+    @Override
     public void initialise(Program program, Context ctx, Settings settings){
         super.initialise(program, ctx, settings);
         if(r2.getRecursiveGroupId() > 0){

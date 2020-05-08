@@ -4,13 +4,16 @@ import com.dat3m.dartagnan.program.Thread;
 import com.dat3m.dartagnan.program.utils.EType;
 import com.dat3m.dartagnan.wmm.filter.FilterBasic;
 import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.event.Event;
 import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
+import com.dat3m.dartagnan.wmm.utils.Utils;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
 import static com.dat3m.dartagnan.wmm.utils.Utils.edge;
 
@@ -31,6 +34,27 @@ public class RelFencerel extends Relation {
         super(name);
         this.fenceName = fenceName;
         term = makeTerm(fenceName);
+    }
+
+    @Override
+    protected void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        TupleSet tuples = map.get(this);
+
+        List<Event> fences;
+        fences = program.getCache().getEvents(FilterBasic.get(fenceName));
+        for (Tuple t : Utils.executedTuples(model, getMaxTupleSet())){
+            for (Event f : fences){
+                boolean valid =
+                    f.getCId() > t.getFirst().getCId() &&
+                    f.getCId() < t.getSecond().getCId() &&
+                    model.getConstInterp(f.exec()).isTrue();
+                if (valid){
+                    tuples.add(t);
+                    break;
+                }
+            }
+        }
     }
 
     @Override

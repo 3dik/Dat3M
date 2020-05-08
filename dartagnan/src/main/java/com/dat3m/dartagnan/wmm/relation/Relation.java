@@ -6,11 +6,13 @@ import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.utils.Mode;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Context;
+import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.dat3m.dartagnan.wmm.utils.Utils.edge;
@@ -143,6 +145,17 @@ public abstract class Relation {
     }
 
     protected abstract BoolExpr encodeApprox();
+
+    public void fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId){
+        if (!map.containsKey(this) || (groupId & recursiveGroupId) > 0){
+            map.putIfAbsent(this, new TupleSet());
+            _fillEnabledTuples(map, model, groupId);
+        }
+    }
+
+    protected abstract void _fillEnabledTuples(Map<Relation, TupleSet> map,
+            Model model, int groupId);
 
     public BoolExpr encodeIteration(int recGroupId, int iteration){
         return ctx.mkTrue();
