@@ -2,20 +2,40 @@
 
 import re
 
-def get_output(text):
-    last_end = 0
-    composed = ''
-    for match in _find_lists(text):
-        composed += text[last_end:match.start()]
-        last_end = match.end()
-    composed += text[last_end:]
-    return composed
+class Reader():
+    def __init__(self, stream):
+        self.stream = stream
+        self.output = ''
 
-def get_lists(text):
-    result = {}
-    for match in _find_lists(text):
-        result[match.group(1)] = list(_to_lines(match.group(2)))
-    return result
+    # The iterator on the right side of each yielded tuple must be exhausted
+    # before the next element of *this* method is yielded.
+    def extract_lists(self):
+        for line in self.stream:
+            match = re.match(r'start list (\w+)$', line)
+            if match is None:
+                self.output += line
+                continue
+
+            name = match.group(1)
+            yield name, self._extract_sublists(name)
+
+    def get_output(self):
+        return self.output
+
+    def _extract_sublists(self, name):
+        entries = []
+        for line in self.stream:
+            deli_match = re.match(r'list delimeter$', line)
+            end_match = re.match(r'end list %s$' % re.escape(name), line)
+
+            if not any([deli_match, end_match]):
+                entries.append(line.strip())
+                continue
+
+            yield entries
+            if end_match:
+                break
+            entries = []
 
 def sort_items(items):
     return sorted(items, reverse=True, key=lambda x: x[1])
@@ -25,27 +45,6 @@ def make_dict(lines):
 
 def quota(number, total):
     return '%.2f%%' % (number * 100 / total)
-
-def sublists(lines):
-    current = []
-    for line in lines:
-        if 'list delimeter' == line:
-            yield current
-            current = []
-            continue
-        current.append(line)
-    yield current
-
-def _find_lists(text):
-    regex = r'start list (\w+)\n(.*?)\nend list \1\n'
-    return re.finditer(regex, text, re.DOTALL)
-
-def _to_lines(text):
-    for line in text.split('\n'):
-        line = line.strip()
-        if not len(line):
-            continue
-        yield line
 
 def _parse_dataline(line):
     match = re.search(r'(.*): ([0-9]+)', line)

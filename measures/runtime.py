@@ -2,7 +2,10 @@
 
 import reader
 
-def do(lines):
+def do(lists):
+    lines = next(lists)
+    assert not len(list(lists))
+
     total, tasks = _load_data(lines)
     print(_show('RUNTIME', total))
     for task, time in tasks.items():

@@ -2,9 +2,9 @@
 
 import reader
 
-def do(lines, rlimit, alimit):
-    basic, steps = _load_data(lines)
-    for i, (rels, axis, summary) in enumerate(steps, 1):
+def do(lists, rlimit, alimit):
+    basic = reader.make_dict(next(lists))
+    for i, (rels, axis, summary) in enumerate(_extract_steps(lists), 1):
         total = sum(basic.values()) + sum(summary.values())
         qrels = reader.quota(summary['rels'], total)
         qaxis = reader.quota(summary['axis'], total)
@@ -12,6 +12,7 @@ def do(lines, rlimit, alimit):
         print(fmt % (i, total, qrels, qaxis))
 
         show_step(total, axis, rels, rlimit, alimit)
+        print('', end='', flush=True)
 
 def show_step(total, axis, rels, rlimit, alimit):
     for rel, number in reader.sort_items(rels.items())[:rlimit]:
@@ -26,15 +27,14 @@ def show_step(total, axis, rels, rlimit, alimit):
         name = axi.rjust(35)
         print('%s %s %s' % (num, perc, name))
 
-def _load_data(lines):
-    sublists = list(reader.sublists(lines))
-    basic = reader.make_dict(sublists.pop(0));
+def _extract_steps(lists):
+    for ntuple in _yield_ntuples(lists, 3):
+        yield tuple(map(reader.make_dict, ntuple))
 
-    assert not (len(sublists) % 3)
-    steps = []
-    while len(sublists):
-        rels = reader.make_dict(sublists.pop(0))
-        axis = reader.make_dict(sublists.pop(0))
-        summary = reader.make_dict(sublists.pop(0))
-        steps.append((rels, axis, summary))
-    return basic, steps
+def _yield_ntuples(iterator, n):
+    assert n > 0
+    for first in iterator:
+        content = [first]
+        for i in range(n - 1):
+            content.append(next(iterator))
+        yield tuple(content)
