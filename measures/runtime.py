@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import reader
 
 def do(lists):
