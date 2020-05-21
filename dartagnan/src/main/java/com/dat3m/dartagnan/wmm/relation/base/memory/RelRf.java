@@ -3,7 +3,7 @@ package com.dat3m.dartagnan.wmm.relation.base.memory;
 import com.dat3m.dartagnan.program.utils.EType;
 import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.filter.FilterBasic;
-import com.dat3m.dartagnan.wmm.filter.FilterMinus;
+import com.dat3m.dartagnan.wmm.filter.FilterUnion;
 import com.microsoft.z3.BoolExpr;
 import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.event.Event;
@@ -37,19 +37,10 @@ public class RelRf extends Relation {
             maxTupleSet = new TupleSet();
 
             List<Event> eventsLoad = program.getCache().getEvents(FilterBasic.get(EType.READ));
-            List<Event> eventsInit = program.getCache().getEvents(FilterBasic.get(EType.INIT));
-            List<Event> eventsStore = program.getCache().getEvents(FilterMinus.get(
+            List<Event> eventsStore = program.getCache().getEvents(FilterUnion.get(
                     FilterBasic.get(EType.WRITE),
                     FilterBasic.get(EType.INIT)
             ));
-
-            for(Event e1 : eventsInit){
-                for(Event e2 : eventsLoad){
-                    if(MemEvent.canAddressTheSameLocation((MemEvent) e1, (MemEvent) e2)){
-                        maxTupleSet.add(new Tuple(e1, e2));
-                    }
-                }
-            }
 
             for(Event e1 : eventsStore){
                 for(Event e2 : eventsLoad){
