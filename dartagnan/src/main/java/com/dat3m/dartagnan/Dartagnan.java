@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Stack;
+import java.util.Set;
 
 import org.apache.commons.cli.HelpFormatter;
 
@@ -99,7 +100,7 @@ public class Dartagnan {
         }
         CheckClock.push("encoding");
         prepare(solver, ctx, program, wmm, target, settings);
-        ApproxAll approx = new ApproxAll(wmm, settings);
+        ApproxAll approx = new ApproxAll(program, wmm, settings);
         approx.initialApprox();
 
         Status status = null;
@@ -111,7 +112,8 @@ public class Dartagnan {
             Stack<String> backup = CheckClock.popAll();
 
             CheckClock.push("solve");
-            status = solver.check();
+            Set<BoolExpr> assumptions = wmm.getAssumptions();
+            status = solver.check(assumptions.toArray(new BoolExpr[0]));
             CheckClock.pop();
 
             CheckClock.push("interpret");

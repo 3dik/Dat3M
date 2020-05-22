@@ -142,6 +142,14 @@ public class Wmm {
         return enc;
     }
 
+    public Set<BoolExpr> getAssumptions(){
+        Set<BoolExpr> assumptions = new HashSet<>();
+        for(Relation relation : relationRepository.getRelations()){
+            assumptions.addAll(relation.getAssumptions());
+        }
+        return assumptions;
+    }
+
     public BoolExpr consistent(Program program, Context ctx,
             Settings settings) {
         if(this.program != program){

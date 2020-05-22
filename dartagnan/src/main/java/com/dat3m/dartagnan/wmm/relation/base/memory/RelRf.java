@@ -5,9 +5,11 @@ import com.dat3m.dartagnan.utils.Settings;
 import com.dat3m.dartagnan.wmm.filter.FilterBasic;
 import com.dat3m.dartagnan.wmm.filter.FilterUnion;
 import com.microsoft.z3.BoolExpr;
+import com.microsoft.z3.Context;
 import com.microsoft.z3.Model;
 import com.dat3m.dartagnan.program.event.Event;
 import com.dat3m.dartagnan.program.event.MemEvent;
+import com.dat3m.dartagnan.program.Program;
 import com.dat3m.dartagnan.wmm.relation.Relation;
 import com.dat3m.dartagnan.wmm.utils.Tuple;
 import com.dat3m.dartagnan.wmm.utils.TupleSet;
@@ -19,9 +21,20 @@ import static com.dat3m.dartagnan.wmm.utils.Utils.edge;
 
 public class RelRf extends Relation {
 
+    private Map<MemEvent, Set<MemEvent>> approxWhitelists;
+    private Map<BoolExpr, MemEvent> assumptions;
+
     public RelRf(){
         term = "rf";
         forceDoEncode = true;
+        approxWhitelists = new HashMap<>();
+        assumptions = new HashMap<>();
+    }
+
+    @Override
+    public void initialise(Program program, Context ctx, Settings settings){
+        super.initialise(program, ctx, settings);
+        assumptions.clear();
     }
 
     @Override
@@ -29,6 +42,23 @@ public class RelRf extends Relation {
             Model model, int groupId){
         TupleSet tuples = map.get(this);
         tuples.addAll(Utils.enabledTuples("rf", getMaxTupleSet(), ctx, model));
+    }
+
+    @Override
+    public Set<BoolExpr> getAssumptions(){
+        return assumptions.keySet();
+    }
+
+    public MemEvent getApproxedRead(BoolExpr assumption){
+        return assumptions.get(assumption);
+    }
+
+    public void setApproxWhitelist(MemEvent read, Set<MemEvent> writes){
+        approxWhitelists.put(read, writes);
+    }
+
+    public void disableApproxWhitelist(MemEvent read){
+        approxWhitelists.remove(read);
     }
 
     @Override
@@ -44,7 +74,14 @@ public class RelRf extends Relation {
 
             for(Event e1 : eventsStore){
                 for(Event e2 : eventsLoad){
-                    if(MemEvent.canAddressTheSameLocation((MemEvent) e1, (MemEvent) e2)){
+                    MemEvent me1 = (MemEvent) e1;
+                    MemEvent me2 = (MemEvent) e2;
+
+                    boolean may = !approxWhitelists.containsKey(me2)
+                        || approxWhitelists.get(me2).contains(me1);
+                    may &= MemEvent.canAddressTheSameLocation(me1, me2);
+
+                    if (may){
                         maxTupleSet.add(new Tuple(e1, e2));
                     }
                 }
@@ -85,7 +122,7 @@ public class RelRf extends Relation {
         return enc;
     }
 
-    private BoolExpr encodeEdgeNaive(Event read, BoolExpr isMemInit, List<BoolExpr> edges){
+    private BoolExpr encodeEdgeNaive(MemEvent read, BoolExpr isMemInit, List<BoolExpr> edges){
         BoolExpr atMostOne = ctx.mkTrue();
         BoolExpr atLeastOne = ctx.mkFalse();
         for(int i = 0; i < edges.size(); i++){
@@ -95,15 +132,11 @@ public class RelRf extends Relation {
             }
         }
 
-        if(settings.getFlag(Settings.FLAG_CAN_ACCESS_UNINITIALIZED_MEMORY)) {
-            atLeastOne = ctx.mkImplies(ctx.mkAnd(read.exec(), isMemInit), atLeastOne);
-        } else {
-            atLeastOne = ctx.mkImplies(read.exec(), atLeastOne);
-        }
+        atLeastOne = processAtLeastOne(atLeastOne, read, isMemInit);
         return ctx.mkAnd(atMostOne, atLeastOne);
     }
 
-    private BoolExpr encodeEdgeSeq(Event read, BoolExpr isMemInit, List<BoolExpr> edges){
+    private BoolExpr encodeEdgeSeq(MemEvent read, BoolExpr isMemInit, List<BoolExpr> edges){
         int num = edges.size();
         int readId = read.getCId();
         BoolExpr lastSeqVar = mkSeqVar(readId, 0);
@@ -118,12 +151,27 @@ public class RelRf extends Relation {
         }
         BoolExpr atLeastOne = ctx.mkOr(newSeqVar, edges.get(edges.size() - 1));
 
-        if(settings.getFlag(Settings.FLAG_CAN_ACCESS_UNINITIALIZED_MEMORY)) {
-            atLeastOne = ctx.mkImplies(ctx.mkAnd(read.exec(), isMemInit), atLeastOne);
-        } else {
-            atLeastOne = ctx.mkImplies(read.exec(), atLeastOne);
-        }
+        atLeastOne = processAtLeastOne(atLeastOne, read, isMemInit);
         return ctx.mkAnd(atMostOne, atLeastOne);
+    }
+
+    private BoolExpr processAtLeastOne(BoolExpr enc, MemEvent read,
+            BoolExpr isMemInit){
+        if(settings.getFlag(Settings.FLAG_CAN_ACCESS_UNINITIALIZED_MEMORY)) {
+            enc = ctx.mkImplies(ctx.mkAnd(read.exec(), isMemInit), enc);
+        } else {
+            enc = ctx.mkImplies(read.exec(), enc);
+        }
+
+        if (approxWhitelists.containsKey(read)){
+            String assumptionName = "rf_assumption(" + read.repr() + ")";
+            BoolExpr assumption = ctx.mkBoolConst(assumptionName);
+            assumptions.put(assumption, read);
+
+            enc = ctx.mkImplies(assumption, enc);
+        }
+
+        return enc;
     }
 
     private BoolExpr mkSeqVar(int readId, int i) {

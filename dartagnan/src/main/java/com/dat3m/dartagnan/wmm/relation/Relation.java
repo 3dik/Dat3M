@@ -154,6 +154,10 @@ public abstract class Relation {
         }
     }
 
+    public Set<BoolExpr> getAssumptions(){
+        return new HashSet<>();
+    }
+
     protected abstract void _fillEnabledTuples(Map<Relation, TupleSet> map,
             Model model, int groupId);
 

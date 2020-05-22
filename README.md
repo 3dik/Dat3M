@@ -12,6 +12,7 @@ why Porthos might be broken.
 Changes:
 
 * Activate approximation of the axioms via the ```appaxioms``` CLI option.
+* Activate approximation of the rf relation via the ```apprf``` CLI option.
 * Command line options ```encstat``` and ```timestat``` can be used to print
   statistics. They can be formatted by the script ```measures/fmt.py```. Just
   pipe the program's output into that script.

@@ -15,6 +15,7 @@ public class DartagnanOptions extends BaseOptions {
         addOption(new Option("timestat", "print runtimes"));
 
         addOption(new Option("appaxioms", "approximate axioms"));
+        addOption(new Option("apprf", "approximate rf relation"));
     }
 
     @Override
@@ -25,5 +26,6 @@ public class DartagnanOptions extends BaseOptions {
         settings.setShowTimeStat(cmd.hasOption("timestat"));
 
         settings.setApproxAxioms(cmd.hasOption("appaxioms"));
+        settings.setApproxRf(cmd.hasOption("apprf"));
     }
 }
