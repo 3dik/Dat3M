@@ -23,6 +23,13 @@ Also:
 * The relation ```crit``` is not supported in ```appaxioms``` mode.
 * In approximation mode, negated CAT axioms are not supported.
 
+Add the arguments ```-pl dartagnan``` in order to run the unit tests. For
+example, the following command runs all X86 tests:
+
+```
+mvn -Dtest=DartagnanX86Test test -pl dartagnan
+```
+
 The rest of this README equals to that of the original Dat3M.
 
 Introduction
