@@ -58,7 +58,7 @@ public class RecursiveRelation extends Relation {
         int size = map.getOrDefault(this, new TupleSet()).size();
         r1.fillEnabledTuples(map, model, groupId);
 
-        map.putIfAbsent(this, map.get(r1));
+        map.put(this, map.get(r1));
 
         return size != map.get(this).size();
     }
