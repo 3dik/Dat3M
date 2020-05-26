@@ -33,8 +33,12 @@ public abstract class AbstractDartagnanTest {
         Wmm wmm = new ParserCat().parse(new File(ResourceHelper.CAT_RESOURCE_PATH + cat));
 
         Settings s1 = new Settings(Mode.KNASTER, Alias.CFIS, 1);
-        Settings s2 = new Settings(Mode.IDL, Alias.CFIS, 1);
-        Settings s3 = new Settings(Mode.KLEENE, Alias.CFIS, 1);
+        s1.setApproxAxioms(true);
+        Settings s2 = new Settings(Mode.KNASTER, Alias.CFIS, 1);
+        s2.setApproxRf(true);
+        Settings s3 = new Settings(Mode.KNASTER, Alias.CFIS, 1);
+        s3.setApproxAxioms(true);
+        s3.setApproxRf(true);
 
         return Files.walk(Paths.get(ResourceHelper.LITMUS_RESOURCE_PATH + litmusPath))
                 .filter(Files::isRegularFile)
@@ -70,7 +74,10 @@ public abstract class AbstractDartagnanTest {
             Program program = new ProgramParser().parse(new File(path));
             if (program.getAss() != null) {
                 Context ctx = new Context();
-                Solver solver = ctx.mkSolver(ctx.mkTactic(Settings.TACTIC));
+                // TODO Previously, the tactic Settings.TACTIC ("qfbv") was
+                // used. We should figure out, why it was used and why this
+                // leads to errors in DartagnanX86Test in approxrf mode.
+                Solver solver = ctx.mkSolver();
                 assertEquals(expected, Dartagnan.testProgram(solver, ctx, program, wmm, target, settings));
                 ctx.close();
             }
